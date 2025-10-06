@@ -9,23 +9,24 @@ use App\Models\LaporanIjin;
 
 class LaporanIjinController extends Controller
 {
+    // Generate laporan ijin per bulan & tahun
     public function generate(Request $request)
     {
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
+        $bulan = $request->query('bulan') ?? date('m');
+        $tahun = $request->query('tahun') ?? date('Y');
 
-        $rekap = Ijin::select('nama', 'unit')
+        $rekap = Ijin::select('nama', 'unit_id')
             ->selectRaw("COUNT(*) as total_ijin")
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->groupBy('nama', 'unit')
+            ->groupBy('nama', 'unit_id')
             ->get();
 
         foreach ($rekap as $r) {
             LaporanIjin::updateOrCreate(
                 [
                     'nama' => $r->nama,
-                    'unit' => $r->unit,
+                    'unit_id' => $r->unit_id,
                     'bulan' => $bulan,
                     'tahun' => $tahun,
                 ],
@@ -41,8 +42,12 @@ class LaporanIjinController extends Controller
         ], 200);
     }
 
+    // Ambil semua laporan ijin
     public function index()
     {
-        return response()->json(LaporanIjin::all(), 200);
+        return response()->json(
+            LaporanIjin::with('unit')->orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get(),
+            200
+        );
     }
 }

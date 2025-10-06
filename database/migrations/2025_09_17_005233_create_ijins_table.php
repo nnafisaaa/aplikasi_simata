@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('ijins', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('unit');
+            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); 
             $table->date('tanggal');
             $table->text('keterangan')->nullable();
             $table->timestamps();

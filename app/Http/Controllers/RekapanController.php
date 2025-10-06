@@ -8,7 +8,6 @@ use App\Models\LaporanPresensi;
 use App\Models\LaporanIjin;
 
 class RekapanController extends Controller
-
 {
     // daftar unit untuk dipilih
     public function index()
@@ -23,14 +22,19 @@ class RekapanController extends Controller
         $bulan = $request->query('bulan') ?? date('m');
         $tahun = $request->query('tahun') ?? date('Y');
 
+        // ambil unit berdasarkan ID
         $unit = Unit::findOrFail($unit_id);
 
-        $presensi = LaporanPresensi::where('unit', $unit->nama_unit)
+        // ambil data laporan presensi berdasarkan unit_id
+        $presensi = LaporanPresensi::with('unit')
+            ->where('unit_id', $unit->id)
             ->where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get();
 
-        $ijin = LaporanIjin::where('unit', $unit->nama_unit)
+        // ambil data laporan ijin berdasarkan unit_id
+        $ijin = LaporanIjin::with('unit')
+            ->where('unit_id', $unit->id)
             ->where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get();

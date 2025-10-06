@@ -15,7 +15,8 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\DoaController;
 use App\Http\Controllers\Api\IjinController;
 use App\Http\Controllers\Api\PresensiController;
-use App\Http\Controllers\Api\LaporanPresensiController; // ✅ tambahan
+use App\Http\Controllers\Api\LaporanPresensiController;
+use App\Http\Controllers\Api\LaporanIjinController;  
 
 
 Route::post('/login', [AuthController::class, 'loginAplikasi']);
@@ -24,10 +25,9 @@ Route::post('/login', [AuthController::class, 'loginAplikasi']);
 Route::get('/berita', [BeritaController::class, 'getNews']);
 
 
-   
+Route::post('/register', [AuthController::class, 'registerAplikasi']);
 
-// register
-Route::post('/register', [AuthController::class, 'register']);
+
 
 // =========================
 // CRUD Kalender Akademik

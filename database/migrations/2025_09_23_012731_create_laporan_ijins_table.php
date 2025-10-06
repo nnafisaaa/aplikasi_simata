@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create('laporan_ijins', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');                  // nama karyawan/siswa
-            $table->string('unit');                  // unit/sekolah/divisi
-            $table->unsignedTinyInteger('bulan');    // bulan laporan (1-12)
-            $table->unsignedSmallInteger('tahun');   // tahun laporan
+            $table->string('nama'); // nama karyawan/siswa
+            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); 
+            $table->unsignedTinyInteger('bulan');     // bulan laporan (1-12)
+            $table->unsignedSmallInteger('tahun');    // tahun laporan
             $table->integer('total_ijin')->default(0); // total jumlah ijin
             $table->timestamps();
 
-            // optional: biar ga ada data dobel dalam periode yg sama
-            $table->unique(['nama', 'unit', 'bulan', 'tahun']);
+            // Biar ga ada data duplikat untuk orang yang sama dalam bulan+tahun
+            $table->unique(['nama', 'unit_id', 'bulan', 'tahun']);
         });
     }
 

@@ -17,4 +17,4 @@ class DataController extends Controller
             ]
         ]);
     }
-}
+}  

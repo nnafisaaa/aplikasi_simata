@@ -12,15 +12,14 @@ class Presensi extends Model
     protected $fillable = [
         'jenis_presensi',
         'nama',
-        'unit',
+        'unit_id',
         'tanggal',
         'waktu',
         'jarak',
     ];
 
-    // Relasi ke laporan presensi
-    public function laporanPresensi()
+    public function unit()
     {
-        return $this->hasOne(LaporanPresensi::class, 'nama', 'nama');
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }

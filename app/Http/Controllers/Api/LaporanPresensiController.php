@@ -9,24 +9,26 @@ use App\Models\LaporanPresensi;
 
 class LaporanPresensiController extends Controller
 {
+    // Generate laporan presensi per bulan & tahun
     public function generate(Request $request)
     {
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
+        $bulan = $request->query('bulan') ?? date('m');
+        $tahun = $request->query('tahun') ?? date('Y');
 
-        $rekap = Presensi::select('nama', 'unit')
+        // Rekap total hadir & pulang
+        $rekap = Presensi::select('nama', 'unit_id')
             ->selectRaw("SUM(CASE WHEN jenis_presensi = 'datang' THEN 1 ELSE 0 END) as total_hadir")
             ->selectRaw("SUM(CASE WHEN jenis_presensi = 'pulang' THEN 1 ELSE 0 END) as total_pulang")
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->groupBy('nama', 'unit')
+            ->groupBy('nama', 'unit_id')
             ->get();
 
         foreach ($rekap as $r) {
             LaporanPresensi::updateOrCreate(
                 [
                     'nama' => $r->nama,
-                    'unit' => $r->unit,
+                    'unit_id' => $r->unit_id,
                     'bulan' => $bulan,
                     'tahun' => $tahun,
                 ],
@@ -43,8 +45,12 @@ class LaporanPresensiController extends Controller
         ], 200);
     }
 
+    // Ambil semua laporan presensi
     public function index()
     {
-        return response()->json(LaporanPresensi::all(), 200);
+        return response()->json(
+            LaporanPresensi::with('unit')->orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get(),
+            200
+        );
     }
 }

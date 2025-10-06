@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('presensis', function (Blueprint $table) {
             $table->id();
-            $table->string('jenis_presensi'); // datang / pulang
+            $table->enum('jenis_presensi', ['datang', 'pulang']); // biar fix pilihannya
             $table->string('nama');
-            $table->string('unit');
+            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); 
             $table->date('tanggal');
             $table->time('waktu');
             $table->decimal('jarak', 8, 2)->nullable(); // dalam km atau meter
             $table->timestamps();
+
+            // Biar ga dobel: 1 orang 1 unit 1 tanggal 1 jenis_presensi
+            $table->unique(['nama', 'unit_id', 'tanggal', 'jenis_presensi']);
         });
     }
 

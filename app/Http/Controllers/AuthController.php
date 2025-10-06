@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
+    // =======================
+    // LOGIN UNTUK APLIKASI
+    // =======================
     public function loginAplikasi(Request $request)
     {
         $request->validate([
@@ -16,13 +21,12 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('username', 'password');
-        $imei        = $request->imei;
+        $imei = $request->imei;
 
-        // cek user di database
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            // cek imei
+            // Cek IMEI
             if ($user->imei !== $imei) {
                 Auth::logout();
                 return response()->json([
@@ -31,15 +35,15 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            // buat token API
+            // Buat token API
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
-                'status'    => 'success',
-                'message'   => 'Login berhasil',
+                'status'       => 'success',
+                'message'      => 'Login berhasil ✅',
                 'access_token' => $token,
                 'token_type'   => 'Bearer',
-                'user'      => [
+                'user' => [
                     'id'       => $user->id,
                     'username' => $user->username,
                     'role'     => $user->role,
@@ -50,9 +54,49 @@ class AuthController extends Controller
 
         return response()->json([
             'status'  => 'error',
-            'message' => 'Login gagal, user tidak ditemukan atau data salah'
+            'message' => 'Login gagal, username atau password salah'
         ], 401);
     }
+
+    // =======================
+    // REGISTER UNTUK APLIKASI
+    // =======================
+    public function registerAplikasi(Request $request)
+    {
+        $validated = $request->validate([
+            'username' => 'required|string|unique:users,username',
+            'password' => 'required|string|min:6',
+            'imei'     => 'required|string|unique:users,imei',
+            'role'     => 'required|string|in:guru,siswa',
+            'unit_id'  => 'required|exists:units,id',
+        ]);
+
+        $user = User::create([
+            'username' => $validated['username'],
+            'password' => Hash::make($validated['password']),
+            'imei'     => $validated['imei'],
+            'role'     => $validated['role'],
+            'unit_id'  => $validated['unit_id'],
+        ]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status'       => 'success',
+            'message'      => 'Registrasi berhasil 🎉',
+            'access_token' => $token,
+            'user' => [
+                'id'       => $user->id,
+                'username' => $user->username,
+                'role'     => $user->role,
+                'unit_id'  => $user->unit_id,
+            ]
+        ], 201);
+    }
+
+    // =======================
+    // LOGIN UNTUK WEB (Blade)
+    // =======================
     public function showLoginForm()
     {
         return view('admin.login');
@@ -67,15 +111,12 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('username', 'password');
-        $imei        = $request->imei;
+        $imei = $request->imei;
 
-        // cek user di database
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            
-
-            // redirect sesuai role
+            // Arahkan sesuai role
             switch ($user->role) {
                 case 'admin':
                     return redirect()->route('admin.dashboard');
@@ -92,6 +133,9 @@ class AuthController extends Controller
         return redirect()->back()->withErrors(['login_error' => 'Username atau password salah']);
     }
 
+    // =======================
+    // LOGOUT (Web)
+    // =======================
     public function logout()
     {
         Auth::logout();

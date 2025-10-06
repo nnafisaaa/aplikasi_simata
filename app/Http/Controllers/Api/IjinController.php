@@ -11,7 +11,8 @@ class IjinController extends Controller
     // Ambil semua data ijin
     public function index()
     {
-        return response()->json(Ijin::all(), 200);
+        // include relasi unit
+        return response()->json(Ijin::with('unit')->get(), 200);
     }
 
     // Simpan data ijin
@@ -19,7 +20,7 @@ class IjinController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'unit' => 'required|string|max:255',
+            'unit_id' => 'required|exists:units,id',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
         ]);
@@ -28,14 +29,14 @@ class IjinController extends Controller
 
         return response()->json([
             'message' => 'Ijin berhasil disimpan',
-            'data' => $ijin
+            'data' => $ijin->load('unit')
         ], 201);
     }
 
     // Detail ijin
     public function show($id)
     {
-        $ijin = Ijin::find($id);
+        $ijin = Ijin::with('unit')->find($id);
 
         if (!$ijin) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
@@ -55,7 +56,7 @@ class IjinController extends Controller
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'unit' => 'required|string|max:255',
+            'unit_id' => 'required|exists:units,id',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
         ]);
@@ -64,7 +65,7 @@ class IjinController extends Controller
 
         return response()->json([
             'message' => 'Ijin berhasil diperbarui',
-            'data' => $ijin
+            'data' => $ijin->load('unit')
         ], 200);
     }
 

@@ -14,7 +14,7 @@ class PresensiController extends Controller
         $validated = $request->validate([
             'jenis_presensi' => 'required|in:datang,pulang',
             'nama' => 'required|string|max:255',
-            'unit' => 'required|string|max:255',
+            'unit_id' => 'required|exists:units,id', // relasi ke tabel units
             'tanggal' => 'required|date',
             'waktu' => 'required|date_format:H:i',
             'jarak' => 'nullable|numeric',
@@ -24,7 +24,7 @@ class PresensiController extends Controller
 
         return response()->json([
             'message' => 'Presensi berhasil disimpan',
-            'data' => $presensi
+            'data' => $presensi->load('unit') // include unit
         ], 201);
     }
 
@@ -34,7 +34,7 @@ class PresensiController extends Controller
         $bulan = $request->query('bulan'); // 1 - 12
         $tahun = $request->query('tahun'); // ex: 2025
 
-        $query = Presensi::query();
+        $query = Presensi::with('unit'); // ikut load relasi unit
 
         if ($bulan && $tahun) {
             $query->whereMonth('tanggal', $bulan)
@@ -47,9 +47,11 @@ class PresensiController extends Controller
         $laporan = [];
         foreach ($data as $presensi) {
             $tgl = $presensi->tanggal;
+
             if (!isset($laporan[$tgl])) {
                 $laporan[$tgl] = [
                     'tanggal' => $tgl,
+                    'unit' => $presensi->unit ? $presensi->unit->nama_unit : null,
                     'datang' => null,
                     'pulang' => null,
                 ];

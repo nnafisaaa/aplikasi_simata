@@ -11,14 +11,13 @@ class Ijin extends Model
 
     protected $fillable = [
         'nama',
-        'unit',
+        'unit_id',
         'tanggal',
         'keterangan',
     ];
 
-    // Relasi ke laporan ijin
-    public function laporanIjin()
+    public function unit()
     {
-        return $this->hasOne(LaporanIjin::class, 'nama', 'nama');
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }

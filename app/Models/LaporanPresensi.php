@@ -11,16 +11,15 @@ class LaporanPresensi extends Model
 
     protected $fillable = [
         'nama',
-        'unit',
+        'unit_id',
         'bulan',
         'tahun',
         'total_hadir',
         'total_pulang',
     ];
 
-    // Relasi ke presensi
-    public function presensis()
+    public function unit()
     {
-        return $this->hasMany(Presensi::class, 'nama', 'nama');
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }

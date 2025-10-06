@@ -33,8 +33,8 @@ class MapsController extends Controller
         }
 
         $route = $data['routes'][0];
-        $duration = $route['duration']; // durasi dalam detik
-        $distance = $route['distance']; // jarak dalam meter
+        $duration = $route['duration']; 
+        $distance = $route['distance']; 
 
         // Jam masuk sekolah/kantor → 06:50:59
         $jamMasuk = Carbon::createFromTime(6, 50, 59);
@@ -50,7 +50,7 @@ class MapsController extends Controller
             'durasi'    => gmdate("H:i:s", $duration),         // ubah detik → jam:menit:detik
             'perkiraan_sampai' => $eta->format('H:i:s'),
             'status'    => $status,
-            'rute'      => $route['geometry'], // polyline untuk ditampilkan di peta
+            'rute'      => $route['geometry'], 
         ]);
     }
 }
