@@ -36,14 +36,22 @@ class User extends Authenticatable
         return $this->belongsTo(Unit::class);
     }
 
-    // Simpan user baru ke database
-    public static function createUser($request)
+    // Relationship to Profile
+    public function profile()
     {
-        return self::create([
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'imei'     => $request->imei,
-            'role'     => 'user',
-        ]);
+        return $this->hasOne(\App\Models\Profil::class);
     }
+
+// Simpan user baru ke database
+public static function createUser($request)
+{
+    return self::create([
+        'username' => $request->username,
+        'password' => Hash::make($request->password),
+        'role'     => 'user',
+        'imei'     => $request->imei,
+        'unit_id'  => $request->unit_id,
+        'name'     => $request->name,
+    ]);
+}
 }

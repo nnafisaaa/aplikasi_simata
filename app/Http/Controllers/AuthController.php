@@ -40,7 +40,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status'       => 'success',
-                'message'      => 'Login berhasil ✅',
+                'message'      => 'Login berhasil',
                 'access_token' => $token,
                 'token_type'   => 'Bearer',
                 'user' => [
@@ -83,7 +83,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status'       => 'success',
-            'message'      => 'Registrasi berhasil 🎉',
+            'message'      => 'Registrasi berhasil',
             'access_token' => $token,
             'user' => [
                 'id'       => $user->id,

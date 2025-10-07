@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\IjinController;
 use App\Http\Controllers\Api\PresensiController;
 use App\Http\Controllers\Api\LaporanPresensiController;
 use App\Http\Controllers\Api\LaporanIjinController;  
+use App\Http\Controllers\Api\ProfileController;
 
 
 Route::post('/login', [AuthController::class, 'loginAplikasi']);
@@ -92,3 +93,8 @@ Route::post('/laporan/presensi/generate', [LaporanPresensiController::class, 'ge
 // IJIN
 Route::get('/laporan/ijin', [LaporanIjinController::class, 'index']);
 Route::post('/laporan/ijin/generate', [LaporanIjinController::class, 'generate']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
+});
