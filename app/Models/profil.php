@@ -16,7 +16,6 @@ class Profil extends Model
         'nama_pegawai',
         'unit_id',
         'photo',
-        // tambahkan field lain jika ada
     ];
 
     public function user()
