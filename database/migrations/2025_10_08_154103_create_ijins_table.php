@@ -13,14 +13,19 @@ return new class extends Migration
     {
         Schema::create('ijins', function (Blueprint $table) {
             $table->id();
-            $table->string('nama'); // nama orang yang izin
-            $table->unsignedBigInteger('unit_id'); // relasi ke tabel units
+
+            // 🔹 Ganti 'nama' jadi relasi user_id
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // 🔹 Relasi unit tetap
+            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade');
+
             $table->date('tanggal');
             $table->text('keterangan')->nullable();
             $table->timestamps();
 
-            // Foreign key ke tabel units
-            $table->foreign('unit_id')->references('id')->on('units')->onDelete('cascade');
+            // Opsional: kalau mau cegah duplikat ijin dalam 1 hari per user
+            // $table->unique(['user_id', 'tanggal']);
         });
     }
 

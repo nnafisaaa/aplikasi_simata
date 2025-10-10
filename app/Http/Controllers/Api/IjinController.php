@@ -5,25 +5,33 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ijin;
+use Illuminate\Support\Facades\Auth;
 
 class IjinController extends Controller
 {
-    // Ambil semua data ijin
+    // Ambil semua data ijin milik user login
     public function index()
     {
-        // include relasi unit
-        return response()->json(Ijin::with('unit')->get(), 200);
+        $user = Auth::user();
+
+        return response()->json(
+            Ijin::with('unit')
+                ->where('user_id', $user->id)
+                ->get(),
+            200
+        );
     }
 
     // Simpan data ijin
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:units,id',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
         ]);
+
+        $validated['user_id'] = Auth::id(); // ambil id user yang login
 
         $ijin = Ijin::create($validated);
 
@@ -36,7 +44,10 @@ class IjinController extends Controller
     // Detail ijin
     public function show($id)
     {
-        $ijin = Ijin::with('unit')->find($id);
+        $user = Auth::user();
+        $ijin = Ijin::with('unit')
+            ->where('user_id', $user->id)
+            ->find($id);
 
         if (!$ijin) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
@@ -48,14 +59,14 @@ class IjinController extends Controller
     // Update ijin
     public function update(Request $request, $id)
     {
-        $ijin = Ijin::find($id);
+        $user = Auth::user();
+        $ijin = Ijin::where('user_id', $user->id)->find($id);
 
         if (!$ijin) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:units,id',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
@@ -72,7 +83,8 @@ class IjinController extends Controller
     // Hapus ijin
     public function destroy($id)
     {
-        $ijin = Ijin::find($id);
+        $user = Auth::user();
+        $ijin = Ijin::where('user_id', $user->id)->find($id);
 
         if (!$ijin) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);

@@ -5,62 +5,115 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Presensi;
+use Illuminate\Support\Facades\Auth;
 
 class PresensiController extends Controller
 {
-    // Simpan presensi (datang atau pulang)
+    /**
+     * Simpan presensi
+     * jenis_presensi = nama kegiatan
+     * status = otomatis (datang/pulang)
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jenis_presensi' => 'required|in:datang,pulang',
-            'nama' => 'required|string|max:255',
-            'unit_id' => 'required|exists:units,id', // relasi ke tabel units
+            'unit_id' => 'required|exists:units,id',
+            'jenis_presensi' => 'required|string|max:255', // nama kegiatan
             'tanggal' => 'required|date',
             'waktu' => 'required|date_format:H:i',
             'jarak' => 'nullable|numeric',
         ]);
 
-        $presensi = Presensi::create($validated);
+        // 🔹 Ambil user login
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'User belum login'], 401);
+        }
+
+        // 🔹 Cek apakah sudah presensi datang hari ini
+        $sudahDatang = Presensi::where('user_id', $user->id)
+            ->where('tanggal', $validated['tanggal'])
+            ->where('status', 'datang')
+            ->exists();
+
+        // 🔹 Tentukan status otomatis
+        $status = $sudahDatang ? 'pulang' : 'datang';
+
+        // 🔹 Cegah duplikasi presensi (user + tanggal + status)
+        $duplikat = Presensi::where('user_id', $user->id)
+            ->where('tanggal', $validated['tanggal'])
+            ->where('status', $status)
+            ->exists();
+
+        if ($duplikat) {
+            return response()->json([
+                'message' => "Presensi $status sudah tercatat hari ini.",
+            ], 422);
+        }
+
+        // 🔹 Simpan presensi baru
+        $presensi = Presensi::create([
+            'user_id' => $user->id,
+            'unit_id' => $validated['unit_id'],
+            'jenis_presensi' => $validated['jenis_presensi'],
+            'tanggal' => $validated['tanggal'],
+            'waktu' => $validated['waktu'],
+            'jarak' => $validated['jarak'] ?? null,
+            'status' => $status, // langsung disimpan di tabel presensi
+        ]);
 
         return response()->json([
-            'message' => 'Presensi berhasil disimpan',
-            'data' => $presensi->load('unit') // include unit
+            'message' => "Presensi $status berhasil disimpan.",
+            'data' => $presensi->load('unit', 'user'),
         ], 201);
     }
 
-    // Ambil laporan presensi per bulan & tahun
+    /**
+     * Laporan presensi per bulan/tahun (khusus user login)
+     */
     public function laporan(Request $request)
     {
-        $bulan = $request->query('bulan'); // 1 - 12
-        $tahun = $request->query('tahun'); // ex: 2025
+        $request->validate([
+            'bulan' => 'nullable|integer|min:1|max:12',
+            'tahun' => 'nullable|integer|min:2000|max:' . date('Y'),
+        ]);
 
-        $query = Presensi::with('unit'); // ikut load relasi unit
-
-        if ($bulan && $tahun) {
-            $query->whereMonth('tanggal', $bulan)
-                  ->whereYear('tanggal', $tahun);
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'User belum login'], 401);
         }
 
-        $data = $query->orderBy('tanggal', 'asc')->get();
+        $query = Presensi::with('unit')
+            ->where('user_id', $user->id)
+            ->orderBy('tanggal', 'asc');
 
-        // Format laporan jadi tanggal -> datang & pulang
+        if ($request->bulan && $request->tahun) {
+            $query->whereMonth('tanggal', $request->bulan)
+                  ->whereYear('tanggal', $request->tahun);
+        }
+
+        $data = $query->get();
+
+        // 🔹 Format laporan
         $laporan = [];
-        foreach ($data as $presensi) {
-            $tgl = $presensi->tanggal;
+        foreach ($data as $item) {
+            $tgl = $item->tanggal;
 
             if (!isset($laporan[$tgl])) {
                 $laporan[$tgl] = [
                     'tanggal' => $tgl,
-                    'unit' => $presensi->unit ? $presensi->unit->nama_unit : null,
+                    'user' => $user->name,
+                    'unit' => $item->unit->nama_unit ?? null,
+                    'kegiatan' => $item->jenis_presensi,
                     'datang' => null,
                     'pulang' => null,
                 ];
             }
 
-            if ($presensi->jenis_presensi === 'datang') {
-                $laporan[$tgl]['datang'] = $presensi->waktu;
-            } else {
-                $laporan[$tgl]['pulang'] = $presensi->waktu;
+            if ($item->status === 'datang') {
+                $laporan[$tgl]['datang'] = $item->waktu;
+            } elseif ($item->status === 'pulang') {
+                $laporan[$tgl]['pulang'] = $item->waktu;
             }
         }
 

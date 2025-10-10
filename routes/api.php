@@ -71,16 +71,19 @@ Route::post('/doa', [DoaController::class, 'store']);
 // =========================
 // Ijin CRUD
 // =========================
-Route::get('/ijins', [IjinController::class, 'index']);
-Route::post('/ijins', [IjinController::class, 'store']);
-Route::get('/ijins/{id}', [IjinController::class, 'show']);
-Route::put('/ijins/{id}', [IjinController::class, 'update']);
-Route::delete('/ijins/{id}', [IjinController::class, 'destroy']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/ijins', [IjinController::class, 'index']);
+    Route::post('/ijins', [IjinController::class, 'store']);
+    Route::get('/ijins/{id}', [IjinController::class, 'show']);
+    Route::put('/ijins/{id}', [IjinController::class, 'update']);
+    Route::delete('/ijins/{id}', [IjinController::class, 'destroy']);
+});
 
 // =========================
 // Presensi CRUD
 // =========================
-Route::post('/presensi', [PresensiController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/presensi', [PresensiController::class, 'store']);
+
 
 // =========================
 // LAPORAN PRESENSI & IJIN

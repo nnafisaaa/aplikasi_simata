@@ -10,16 +10,17 @@ return new class extends Migration
     {
         Schema::create('presensis', function (Blueprint $table) {
             $table->id();
-            $table->enum('jenis_presensi', ['datang', 'pulang']); // biar fix pilihannya
-            $table->string('nama');
-            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); 
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // user yang presensi
+            $table->foreignId('unit_id')->constrained('units')->onDelete('cascade'); // unit tempat presensi
+            $table->string('jenis_presensi'); // contoh: "Rapat Koordinasi", "Kegiatan CSR", dll
+            $table->enum('status', ['datang', 'pulang']); // status presensi
             $table->date('tanggal');
             $table->time('waktu');
-            $table->decimal('jarak', 8, 2)->nullable(); // dalam km atau meter
+            $table->decimal('jarak', 8, 2)->nullable(); // jarak ke lokasi dalam km/meter
             $table->timestamps();
 
-            // Biar ga dobel: 1 orang 1 unit 1 tanggal 1 jenis_presensi
-            $table->unique(['nama', 'unit_id', 'tanggal', 'jenis_presensi']);
+            // Cegah duplikasi: 1 user 1 tanggal 1 status (datang/pulang)
+            $table->unique(['user_id', 'tanggal', 'status']);
         });
     }
 
