@@ -87,6 +87,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // User CRUD (plural)
     Route::resource('/admin/users', UserController::class);
+    Route::resource('/admin/videos', VideoController::class);
+    
 
     // Unit CRUD
     Route::get('/admin/units/create', [UnitController::class, 'create'])->name('units.create');
@@ -121,3 +123,5 @@ Route::prefix('rekapan')->group(function () {
     // detail rekapan per unit
     Route::get('/{unit_id}', [RekapanController::class, 'show'])->name('rekapan.show');
 });
+
+

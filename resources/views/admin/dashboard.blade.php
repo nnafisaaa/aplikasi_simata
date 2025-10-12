@@ -47,6 +47,7 @@
                                 ['url' => '/doa', 'icon' => 'fas fa-praying-hands', 'label' => 'Kelola Doa'],
                                 ['url' => '/kalender', 'icon' => 'fas fa-calendar', 'label' => 'Kelola Kalender'],
                                 ['url' => '/rekapan', 'icon' => 'fas fa-clipboard-list', 'label' => 'Rekapan'],
+                                ['url' => '/admin/videos', 'icon' => 'fas fa-video', 'label' => 'Video'], 
                             ],
                             'tu' => [
                                 ['url' => '/kalender', 'icon' => 'fas fa-calendar', 'label' => 'Kelola Kalender'],
@@ -99,9 +100,13 @@
                                 </a>
                                 <a href="{{ url('/kalender') }}" class="btn btn-info mb-2">
                                     <i class="fas fa-calendar"></i> Kelola Kalender
-                                    </a>
-    <a href="{{ url('/rekapan') }}" class="btn btn-dark mb-2">
-        <i class="fas fa-clipboard-list"></i> Rekapan
+                                </a>
+                                <a href="{{ url('/rekapan') }}" class="btn btn-dark mb-2">
+                                    <i class="fas fa-clipboard-list"></i> Rekapan
+                                </a>
+                                
+                                <a href="{{ url('/admin/videos') }}" class="btn btn-danger mb-2">
+                                    <i class="fas fa-video"></i> Video
                                 </a>
                             @elseif(Auth::user()->role === 'tu')
                                 <a href="{{ url('/kalender') }}" class="btn btn-warning mb-2">

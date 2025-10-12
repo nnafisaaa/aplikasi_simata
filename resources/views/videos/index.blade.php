@@ -1,32 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Daftar Video</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Video YouTube</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Video Terbaru</h1>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Daftar Video YouTube</h2>
+        <a href="{{ route('videos.create') }}" class="btn btn-primary">+ Tambah Video</a>
+    </div>
 
     {{-- Form Pencarian --}}
-    <form method="GET" action="{{ route('videos.index') }}">
-        <input type="text" name="q" placeholder="Cari video..." value="{{ request('q') }}">
-        <button type="submit">Search</button>
+    <form method="GET" action="{{ route('videos.index') }}" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Cari video..." value="{{ request('q') }}">
+            <button class="btn btn-outline-secondary" type="submit">Cari</button>
+        </div>
     </form>
 
-    <hr>
+    {{-- Daftar Video --}}
+    <div class="row">
+        @forelse ($videos as $video)
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="ratio ratio-16x9">
+                        <iframe 
+                            src="{{ str_replace('watch?v=', 'embed/', $video->youtube_url) }}" 
+                            title="{{ $video->title }}" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $video->title }}</h5>
+                        <p class="card-text text-muted">{{ $video->description ?? 'Tidak ada deskripsi.' }}</p>
+                        <a href="{{ $video->youtube_url }}" target="_blank" class="btn btn-sm btn-danger">Lihat di YouTube</a>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12 text-center">
+                <p class="text-muted">Belum ada video.</p>
+            </div>
+        @endforelse
+    </div>
+</div>
 
-    {{-- List Video --}}
-    @forelse ($videos as $video)
-        <h3>{{ $video['title'] }}</h3>
-        <iframe width="560" height="315"
-            src="{{ str_replace('watch?v=', 'embed/', $video['link']) }}"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-        </iframe>
-        <p><small>Dipublikasikan: {{ \Carbon\Carbon::parse($video['published'])->translatedFormat('d F Y H:i') }}</small></p>
-        <hr>
-    @empty
-        <p>Tidak ada video.</p>
-    @endforelse
 </body>
 </html>
