@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\PresensiController;
 use App\Http\Controllers\Api\LaporanPresensiController;
 use App\Http\Controllers\Api\LaporanIjinController;  
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\VideoController;
 
 
 Route::post('/login', [AuthController::class, 'loginAplikasi']);
@@ -38,6 +39,17 @@ Route::post('/kalender-akademik', [KalenderAkademikController::class, 'store']);
 Route::get('/kalender-akademik/{id}', [KalenderAkademikController::class, 'show']);
 Route::put('/kalender-akademik/{id}', [KalenderAkademikController::class, 'update']);
 Route::delete('/kalender-akademik/{id}', [KalenderAkademikController::class, 'destroy']);
+
+
+// =========================
+// ROUTE API VIDEO 
+// =========================
+Route::get('/videos', [VideoController::class, 'index']);          
+Route::post('/videos', [VideoController::class, 'store']);         
+Route::get('/videos/{id}', [VideoController::class, 'show']);      
+Route::put('/videos/{id}', [VideoController::class, 'update']);    
+Route::delete('/videos/{id}', [VideoController::class, 'destroy']); 
+
 
 // =========================
 // CRUD Unit
@@ -101,3 +113,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
 });
+
