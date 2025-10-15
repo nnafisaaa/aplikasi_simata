@@ -61,38 +61,42 @@ class AuthController extends Controller
     // =======================
     // REGISTER UNTUK APLIKASI
     // =======================
-    public function registerAplikasi(Request $request)
-    {
-        $validated = $request->validate([
-            'username' => 'required|string|unique:users,username',
-            'password' => 'required|string|min:6',
-            'imei'     => 'required|string|unique:users,imei',
-            'role'     => 'required|string|in:guru,siswa',
-            'unit_id'  => 'required|exists:units,id',
-        ]);
+   public function registerAplikasi(Request $request)
+{
+    $validated = $request->validate([
+        'username' => 'required|string|unique:users,username',
+        'password' => 'required|string|min:6',
+        'imei'     => 'required|string|unique:users,imei',
+        'role'     => 'required|string|in:guru,siswa',
+        'unit_id'  => 'required|exists:units,id',
+    ]);
 
-        $user = User::create([
-            'username' => $validated['username'],
-            'password' => Hash::make($validated['password']),
-            'imei'     => $validated['imei'],
-            'role'     => $validated['role'],
-            'unit_id'  => $validated['unit_id'],
-        ]);
+    $user = User::create([
+        'username' => $validated['username'],
+        'password' => Hash::make($validated['password']),
+        'imei'     => $validated['imei'],
+        'role'     => $validated['role'],
+        'unit_id'  => $validated['unit_id'],
+    ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+    // 🔹 Ambil data unit-nya juga
+    $user->load('unit');
 
-        return response()->json([
-            'status'       => 'success',
-            'message'      => 'Registrasi berhasil',
-            'access_token' => $token,
-            'user' => [
-                'id'       => $user->id,
-                'username' => $user->username,
-                'role'     => $user->role,
-                'unit_id'  => $user->unit_id,
-            ]
-        ], 201);
-    }
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'status'       => 'success',
+        'message'      => 'Registrasi berhasil',
+        'access_token' => $token,
+        'user' => [
+            'id'         => $user->id,
+            'username'   => $user->username,
+            'role'       => $user->role,
+            'unit_id'    => $user->unit_id,
+            'unit_name'  => $user->unit->nama_unit ?? null, // ✅ tambahan penting!
+        ]
+    ], 201);
+}
 
     // =======================
     // LOGIN UNTUK WEB (Blade)
