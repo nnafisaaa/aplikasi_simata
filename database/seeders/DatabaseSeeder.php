@@ -5,12 +5,15 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Unit;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin
+        // ====================
+        // Admin tetap sama
+        // ====================
         User::updateOrCreate(
             ['username' => 'admin'],
             [
@@ -20,24 +23,36 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // TU
-        User::updateOrCreate(
-            ['username' => 'tu'],
-            [
-                'password' => Hash::make('tu123'),
-                'role' => 'tu',
-                'imei' => '111222333',
-            ]
-        );
+        // ====================
+        // Loop Kanit & TU per unit
+        // ====================
+        for ($i = 1; $i <= 9; $i++) {
+            // Ambil unit berdasarkan id
+            $unit = Unit::where('id', $i)->first();
 
-        // Kabid
-        User::updateOrCreate(
-            ['username' => 'kabid'],
-            [
-                'password' => Hash::make('kabid123'),
-                'role' => 'kabid',
-                'imei' => '222333444',
-            ]
-        );
+            if ($unit) {
+                // Kanit unit i
+                User::updateOrCreate(
+                    ['username' => "kanit_{$i}"],
+                    [
+                        'password' => Hash::make("kanit{$i}123"),
+                        'role' => 'kanit',
+                        'imei' => "22233344{$i}",
+                        'unit_id' => $unit->id,
+                    ]
+                );
+
+                // TU unit i
+                User::updateOrCreate(
+                    ['username' => "tu_{$i}"],
+                    [
+                        'password' => Hash::make("tu{$i}123"),
+                        'role' => 'tu',
+                        'imei' => "11122233{$i}",
+                        'unit_id' => $unit->id,
+                    ]
+                );
+            }
+        }
     }
 }

@@ -10,8 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitController;
-use App\Http\Controllers\TuController;
-use App\Http\Controllers\KabidController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoaController;
 use App\Http\Controllers\KalenderAkademikController;
 use App\Http\Controllers\RekapanController;
@@ -50,8 +49,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/tu/dashboard', [TuController::class, 'dashboard'])->name('tu.dashboard');
-    Route::get('/kabid/dashboard', [KabidController::class, 'dashboard'])->name('kabid.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 /*

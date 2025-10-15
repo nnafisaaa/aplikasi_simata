@@ -121,9 +121,9 @@ class AuthController extends Controller
                 case 'admin':
                     return redirect()->route('admin.dashboard');
                 case 'tu':
-                    return redirect()->route('tu.dashboard');
+                    return redirect()->route('dashboard');
                 case 'kabid':
-                    return redirect()->route('kabid.dashboard');
+                    return redirect()->route('dashboard');
                 default:
                     Auth::logout();
                     return redirect()->route('login')->withErrors(['role' => 'Role tidak dikenali']);

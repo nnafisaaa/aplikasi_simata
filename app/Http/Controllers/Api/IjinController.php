@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ijin;
+use App\Models\Presensi;
 use Illuminate\Support\Facades\Auth;
 
 class IjinController extends Controller
 {
-    // Ambil semua data ijin milik user login
+    // =========================
+    // METHOD CRUD IJIN ASLI
+    // =========================
+
     public function index()
     {
         $user = Auth::user();
@@ -22,7 +26,6 @@ class IjinController extends Controller
         );
     }
 
-    // Simpan data ijin
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,7 +34,7 @@ class IjinController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $validated['user_id'] = Auth::id(); // ambil id user yang login
+        $validated['user_id'] = Auth::id();
 
         $ijin = Ijin::create($validated);
 
@@ -41,7 +44,6 @@ class IjinController extends Controller
         ], 201);
     }
 
-    // Detail ijin
     public function show($id)
     {
         $user = Auth::user();
@@ -56,7 +58,6 @@ class IjinController extends Controller
         return response()->json($ijin, 200);
     }
 
-    // Update ijin
     public function update(Request $request, $id)
     {
         $user = Auth::user();
@@ -80,7 +81,6 @@ class IjinController extends Controller
         ], 200);
     }
 
-    // Hapus ijin
     public function destroy($id)
     {
         $user = Auth::user();
@@ -93,5 +93,36 @@ class IjinController extends Controller
         $ijin->delete();
 
         return response()->json(['message' => 'Ijin berhasil dihapus'], 200);
+    }
+
+    // =========================
+    // METHOD BARU: REKAP LAPORAN
+    // =========================
+
+    public function rekap(Request $request)
+    {
+        $bulan = $request->query('bulan') ?? date('m');
+        $tahun = $request->query('tahun') ?? date('Y');
+
+        // Rekap Ijin per unit
+        $rekapIjin = Ijin::with('unit', 'user')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get()
+            ->groupBy('unit_id');
+
+        // Rekap Presensi per unit
+        $rekapPresensi = Presensi::with('unit', 'user')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get()
+            ->groupBy('unit_id');
+
+        return response()->json([
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'rekap_ijin' => $rekapIjin,
+            'rekap_presensi' => $rekapPresensi,
+        ], 200);
     }
 }
