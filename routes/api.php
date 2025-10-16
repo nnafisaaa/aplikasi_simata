@@ -101,13 +101,6 @@ Route::middleware('auth:sanctum')->post('/presensi', [PresensiController::class,
 // LAPORAN PRESENSI & IJIN
 // =========================
 
-// PRESENSI
-Route::get('/laporan/presensi', [LaporanPresensiController::class, 'index']);
-Route::post('/laporan/presensi/generate', [LaporanPresensiController::class, 'generate']);
-
-// IJIN
-Route::get('/laporan/ijin', [LaporanIjinController::class, 'index']);
-Route::post('/laporan/ijin/generate', [LaporanIjinController::class, 'generate']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
