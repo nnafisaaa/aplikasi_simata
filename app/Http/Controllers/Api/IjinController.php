@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Ijin;
 use App\Models\Presensi;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Unit;
 
 class IjinController extends Controller
 {
@@ -100,29 +101,58 @@ class IjinController extends Controller
     // =========================
 
     public function rekap(Request $request)
-    {
-        $bulan = $request->query('bulan') ?? date('m');
-        $tahun = $request->query('tahun') ?? date('Y');
+{
+    $bulan = $request->query('bulan') ?? date('m');
+    $tahun = $request->query('tahun') ?? date('Y');
+    $unit_id = $request->query('unit_id'); // ambil unit_id dari query
 
-        // Rekap Ijin per unit
-        $rekapIjin = Ijin::with('unit', 'user')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->get()
-            ->groupBy('unit_id');
-
-        // Rekap Presensi per unit
-        $rekapPresensi = Presensi::with('unit', 'user')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->get()
-            ->groupBy('unit_id');
-
+    // Jika unit_id tidak dikirim, kembalikan error
+    if (!$unit_id) {
         return response()->json([
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'rekap_ijin' => $rekapIjin,
-            'rekap_presensi' => $rekapPresensi,
-        ], 200);
+            'message' => 'Parameter unit_id wajib dikirim.'
+        ], 400);
     }
+
+    // Ambil data unit
+    $unit = Unit::findOrFail($unit_id);
+
+    // ===============================
+    // Ambil data ijin sesuai unit
+    // ===============================
+    $rekapIjin = Ijin::with('user', 'unit')
+        ->where('unit_id', $unit->id)
+        ->whereMonth('tanggal', $bulan)
+        ->whereYear('tanggal', $tahun)
+        ->orderBy('tanggal', 'asc')
+        ->get();
+
+    // ===============================
+    // Ambil data presensi sesuai unit
+    // ===============================
+    $rekapPresensi = Presensi::with('user', 'unit')
+        ->where('unit_id', $unit->id)
+        ->whereMonth('tanggal', $bulan)
+        ->whereYear('tanggal', $tahun)
+        ->orderBy('tanggal', 'asc')
+        ->get();
+
+    // ===============================
+    // Hitung total per bulan
+    // ===============================
+    $total_ijin = $rekapIjin->count();
+    $total_presensi = $rekapPresensi->count();
+
+    // ===============================
+    // Response JSON
+    // ===============================
+    return response()->json([
+        'unit' => $unit->nama_unit ?? null,
+        'bulan' => $bulan,
+        'tahun' => $tahun,
+        'total_ijin' => $total_ijin,
+        'total_presensi' => $total_presensi,
+        'rekap_ijin' => $rekapIjin,
+        'rekap_presensi' => $rekapPresensi,
+    ], 200);
+}
 }
