@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Unit; 
 
 class User extends Authenticatable
 {
@@ -30,28 +31,28 @@ class User extends Authenticatable
         'password' => 'hashed', // otomatis hash saat create/update
     ];
 
-    // Relationship to Unit
+    // Relasi ke Unit
     public function unit()
     {
         return $this->belongsTo(Unit::class);
     }
 
-    // Relationship to Profile
+    // Relasi ke Profil
     public function profil()
     {
         return $this->hasOne(\App\Models\Profil::class);
     }
 
-// Simpan user baru ke database
-public static function createUser($request)
-{
-    return self::create([
-        'username' => $request->username,
-        'password' => Hash::make($request->password),
-        'role'     => 'user',
-        'imei'     => $request->imei,
-        'unit_id'  => $request->unit_id,
-        'name'     => $request->name,
-    ]);
-}
+    // Simpan user baru ke database
+    public static function createUser($request)
+    {
+        return self::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'role'     => 'user',
+            'imei'     => $request->imei,
+            'unit_id'  => $request->unit_id,
+            'name'     => $request->name,
+        ]);
+    }
 }

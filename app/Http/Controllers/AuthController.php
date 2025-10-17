@@ -128,6 +128,8 @@ class AuthController extends Controller
                     return redirect()->route('dashboard');
                 case 'kabid':
                     return redirect()->route('dashboard');
+                case 'kanit':
+                    return redirect()->route('dashboard');
                 default:
                     Auth::logout();
                     return redirect()->route('login')->withErrors(['role' => 'Role tidak dikenali']);
