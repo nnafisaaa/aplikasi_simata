@@ -84,8 +84,7 @@
                             <select name="role" class="form-select" required>
                                 <option value="">-- Pilih Role --</option>
                                 <option value="guru" {{ old('role') == 'guru' ? 'selected' : '' }}>Guru</option>
-                                <option value="Siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option>
-
+                                <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option>
                             </select>
                         </div>
 
