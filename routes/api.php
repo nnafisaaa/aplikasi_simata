@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Controller import
+// =========================
+// Import Controller
+// =========================
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QuranController;
 use App\Http\Controllers\PrayerTimeController;
@@ -15,21 +17,16 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\DoaController;
 use App\Http\Controllers\Api\IjinController;
 use App\Http\Controllers\Api\PresensiController;
-use App\Http\Controllers\Api\LaporanPresensiController;
-use App\Http\Controllers\Api\LaporanIjinController;  
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\VideoController;
 
 
+// =========================
+// AUTH & PUBLIC ROUTES
+// =========================
 Route::post('/login', [AuthController::class, 'loginAplikasi']);
-
-
-Route::get('/berita', [BeritaController::class, 'getNews']);
-
-
 Route::post('/register', [AuthController::class, 'registerAplikasi']);
-
-
+Route::get('/berita', [BeritaController::class, 'getNews']);
 
 // =========================
 // CRUD Kalender Akademik
@@ -40,16 +37,14 @@ Route::get('/kalender-akademik/{id}', [KalenderAkademikController::class, 'show'
 Route::put('/kalender-akademik/{id}', [KalenderAkademikController::class, 'update']);
 Route::delete('/kalender-akademik/{id}', [KalenderAkademikController::class, 'destroy']);
 
-
 // =========================
 // ROUTE API VIDEO 
 // =========================
-Route::get('/videos', [VideoController::class, 'index']);          
-Route::post('/videos', [VideoController::class, 'store']);         
-Route::get('/videos/{id}', [VideoController::class, 'show']);      
-Route::put('/videos/{id}', [VideoController::class, 'update']);    
-Route::delete('/videos/{id}', [VideoController::class, 'destroy']); 
-
+Route::get('/videos', [VideoController::class, 'index']);
+Route::post('/videos', [VideoController::class, 'store']);
+Route::get('/videos/{id}', [VideoController::class, 'show']);
+Route::put('/videos/{id}', [VideoController::class, 'update']);
+Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
 
 // =========================
 // CRUD Unit
@@ -81,30 +76,23 @@ Route::get('/doa/{id}', [DoaController::class, 'show']);
 Route::post('/doa', [DoaController::class, 'store']);
 
 // =========================
-// Ijin CRUD
+// ROUTE DENGAN AUTH SANCTUM
 // =========================
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Ijin
     Route::get('/ijins', [IjinController::class, 'index']);
     Route::post('/ijins', [IjinController::class, 'store']);
     Route::get('/ijins/{id}', [IjinController::class, 'show']);
     Route::put('/ijins/{id}', [IjinController::class, 'update']);
     Route::delete('/ijins/{id}', [IjinController::class, 'destroy']);
     Route::get('/rekap', [IjinController::class, 'rekap']);
-});
+    Route::get('/ijin/statistik', [IjinController::class, 'statistik']);
 
-// =========================
-// Presensi CRUD
-// =========================
-Route::middleware('auth:sanctum')->post('/presensi', [PresensiController::class, 'store']);
+    // Presensi
+    Route::post('/presensi', [PresensiController::class, 'store']);
 
-
-// =========================
-// LAPORAN PRESENSI & IJIN
-// =========================
-
-
-Route::middleware('auth:sanctum')->group(function () {
+    // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
 });
-
