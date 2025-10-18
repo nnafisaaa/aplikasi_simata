@@ -109,3 +109,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [ProfileController::class, 'update']);
 });
 
+Route::middleware('auth:sanctum')->get('/presensi/laporan', [PresensiController::class, 'laporan']);
