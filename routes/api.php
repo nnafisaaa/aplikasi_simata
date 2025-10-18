@@ -90,6 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/ijins/{id}', [IjinController::class, 'update']);
     Route::delete('/ijins/{id}', [IjinController::class, 'destroy']);
     Route::get('/rekap', [IjinController::class, 'rekap']);
+    Route::get('/ijin/statistik', [IjinController::class, 'statistik']);
 });
 
 // =========================
