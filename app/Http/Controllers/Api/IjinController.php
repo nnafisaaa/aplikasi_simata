@@ -155,4 +155,53 @@ class IjinController extends Controller
         'rekap_presensi' => $rekapPresensi,
     ], 200);
 }
+// =========================
+    // FUNCTION BARU: STATISTIK UNTUK FRONTEND
+    // =========================
+
+    public function statistik(Request $request)
+    {
+        $user = Auth::user();
+        $bulan = $request->query('bulan') ?? date('m');
+        $tahun = $request->query('tahun') ?? date('Y');
+
+        $totalIjin = Ijin::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->count();
+
+        $totalPresensi = Presensi::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->count();
+
+        $datang = Presensi::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->whereNotNull('jam_masuk')
+            ->count();
+
+        $pulang = Presensi::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->whereNotNull('jam_pulang')
+            ->count();
+
+        $hadir = max($totalPresensi - $totalIjin, 0);
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'nama' => $user->name,
+            ],
+            'periode' => date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)),
+            'statistik' => [
+                'presensi_total' => $totalPresensi,
+                'datang' => $datang,
+                'pulang' => $pulang,
+                'ijin' => $totalIjin,
+                'hadir' => $hadir,
+            ]
+        ], 200);
+    }
 }
